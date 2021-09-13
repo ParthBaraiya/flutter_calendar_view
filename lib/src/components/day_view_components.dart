@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../constants.dart';
-import '../extensions.dart';
+import '../utils/extensions.dart';
 import 'common_components.dart';
 
 /// This class defines default tile to display in day view.

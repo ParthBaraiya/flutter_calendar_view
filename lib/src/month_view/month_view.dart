@@ -5,13 +5,13 @@
 import 'package:flutter/material.dart';
 
 import '../calendar_constants.dart';
-import '../calendar_controller_provider.dart';
-import '../calendar_event_data.dart';
 import '../components/components.dart';
 import '../constants.dart';
-import '../event_controller.dart';
-import '../extensions.dart';
 import '../typedefs.dart';
+import '../utils/calendar_controller_provider.dart';
+import '../utils/calendar_event_data.dart';
+import '../utils/event_controller.dart';
+import '../utils/extensions.dart';
 
 class MonthView<T> extends StatefulWidget {
   /// A function that returns a [Widget] that determines appearance of

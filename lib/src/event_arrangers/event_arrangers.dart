@@ -4,8 +4,8 @@
 
 import 'dart:math' as math;
 
-import '../calendar_event_data.dart';
-import '../extensions.dart';
+import '../utils/calendar_event_data.dart';
+import '../utils/extensions.dart';
 
 part 'merge_event_arranger.dart';
 part 'side_event_arranger.dart';

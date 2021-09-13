@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 
 import '../components/_internal_components.dart';
 import '../event_arrangers/event_arrangers.dart';
-import '../event_controller.dart';
 import '../modals.dart';
-import '../painters.dart';
 import '../typedefs.dart';
+import '../utils/event_controller.dart';
+import '../utils/painters.dart';
 
 /// Defines a single day page.
 class InternalDayViewPage<T> extends StatelessWidget {

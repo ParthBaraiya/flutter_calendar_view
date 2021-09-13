@@ -5,10 +5,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../calendar_event_data.dart';
 import '../constants.dart';
-import '../extensions.dart';
 import '../typedefs.dart';
+import '../utils/calendar_event_data.dart';
+import '../utils/extensions.dart';
 import 'common_components.dart';
 
 class CircularCell extends StatelessWidget {

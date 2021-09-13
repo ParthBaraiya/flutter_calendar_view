@@ -6,13 +6,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../calendar_event_data.dart';
 import '../constants.dart';
 import '../event_arrangers/event_arrangers.dart';
-import '../extensions.dart';
 import '../modals.dart';
-import '../painters.dart';
 import '../typedefs.dart';
+import '../utils/calendar_event_data.dart';
+import '../utils/extensions.dart';
+import '../utils/painters.dart';
 
 /// Widget to display tile line according to current time.
 class LiveTimeIndicator extends StatefulWidget {

@@ -2,19 +2,21 @@
 // Use of this source code is governed by a MIT-style license
 // that can be found in the LICENSE file.
 
+import 'package:calendar_view/src/enumerations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../calendar_constants.dart';
-import '../calendar_controller_provider.dart';
-import '../calendar_event_data.dart';
 import '../components/components.dart';
 import '../constants.dart';
 import '../event_arrangers/event_arrangers.dart';
-import '../event_controller.dart';
-import '../extensions.dart';
 import '../modals.dart';
 import '../typedefs.dart';
+import '../utils/calendar_controller_provider.dart';
+import '../utils/calendar_event_data.dart';
+import '../utils/event_controller.dart';
+import '../utils/extensions.dart';
+import '../utils/weekday_sequence.dart';
 import '_internal_week_view_page.dart';
 
 /// [Widget] to display week view.
@@ -35,6 +37,10 @@ class WeekView<T> extends StatefulWidget {
   final CalendarPageChangeCallBack? onPageChange;
 
   /// Minimum day to display in week view.
+  ///
+  /// Minimum date displayed in week view may or may not be
+  /// same as you provided.
+  /// This will be recalculated using [daySequence].
   final DateTime? minDay;
 
   /// Maximum day to display in week view.
@@ -87,6 +93,11 @@ class WeekView<T> extends StatefulWidget {
   /// Called when user taps on event tile.
   final CellTapCallback<T>? onEventTap;
 
+  /// Defines how days will be displayed in calendar view.
+  ///
+  /// By default it will display days from monday to sunday.
+  final WeekdaySequence? daySequence;
+
   /// Main widget for week view.
   const WeekView({
     Key? key,
@@ -112,6 +123,7 @@ class WeekView<T> extends StatefulWidget {
     this.weekDayBuilder,
     this.backgroundColor = Colors.white,
     this.onEventTap,
+    this.daySequence,
   }) : super(key: key);
 
   @override
@@ -132,6 +144,8 @@ class WeekViewState<T> extends State<WeekView<T>> {
   late int _totalWeeks;
   late int _currentIndex;
 
+  late WeekdaySequence _daySequence;
+
   late EventArranger<T> _eventArranger;
 
   late HourIndicatorSettings _hourIndicatorSettings;
@@ -145,7 +159,7 @@ class WeekViewState<T> extends State<WeekView<T>> {
   late DateWidgetBuilder _weekDayBuilder;
 
   late double _weekTitleWidth;
-  final _weekDays = 7;
+  late final int _weekDays;
 
   bool _controllerAdded = false;
 
@@ -156,11 +170,27 @@ class WeekViewState<T> extends State<WeekView<T>> {
   @override
   void initState() {
     super.initState();
+    _daySequence = widget.daySequence ??
+        WeekdaySequence(sequence: [WeekDays.sunday, WeekDays.monday]);
+    _weekDays = _daySequence.sequence.length;
 
     _reloadCallback = _reload;
 
-    _minDate = widget.minDay ?? CalendarConstants.epochDate;
+    _minDate = (widget.minDay ?? CalendarConstants.epochDate)
+        .dateSequence(sequence: _daySequence)
+        .first;
+
     _maxDate = widget.maxDay ?? CalendarConstants.maxDate;
+
+    _maxDate = _maxDate.subtract(Duration(
+        days: _minDate.getDayDifference(_maxDate) %
+            _daySequence.sequence.length));
+
+    assert(
+        _minDate.isBefore(_maxDate) &&
+            _minDate.difference(_maxDate).inDays.abs() >=
+                _daySequence.sequence.length,
+        "Please provide valid minimum and maximum date.");
 
     _initialDay = widget.initialDay ?? DateTime.now();
 
@@ -170,12 +200,13 @@ class WeekViewState<T> extends State<WeekView<T>> {
       _initialDay = _maxDate;
     }
 
-    final dates = _initialDay.datesOfWeek();
+    _totalWeeks = _maxDate.getWeekDifference(_minDate);
+
+    final dates = _initialDay.dateSequence(sequence: _daySequence);
     _currentStartDate = dates.first;
     _currentEndDate = dates.last;
 
-    _totalWeeks = _maxDate.getWeekDifference(_minDate) + 1;
-    _currentIndex = _currentStartDate.getWeekDifference(_minDate) + 1;
+    _currentIndex = _currentStartDate.getWeekDifference(_minDate);
     _hourHeight = widget.heightPerMinute * 60;
     _height = _hourHeight * Constants.hoursADay;
     _timeLineOffset = widget.timeLineOffset;
@@ -265,7 +296,7 @@ class WeekViewState<T> extends State<WeekView<T>> {
                     itemBuilder: (_, index) {
                       final dates = _minDate
                           .add(Duration(days: (index - 1) * _weekDays))
-                          .datesOfWeek();
+                          .dateSequence(sequence: _daySequence);
 
                       return InternalWeekViewPage<T>(
                         key: ValueKey(
@@ -402,9 +433,9 @@ class WeekViewState<T> extends State<WeekView<T>> {
         _currentStartDate = DateTime(
           _currentStartDate.year,
           _currentStartDate.month,
-          _currentStartDate.day + (index - _currentIndex) * 7,
+          _currentStartDate.day + (index - _currentIndex) * _weekDays,
         );
-        _currentEndDate = _currentStartDate.add(Duration(days: 6));
+        _currentEndDate = _currentStartDate.add(Duration(days: _weekDays));
         _currentIndex = index;
       });
     }

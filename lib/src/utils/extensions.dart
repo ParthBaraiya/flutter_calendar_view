@@ -4,7 +4,8 @@
 
 import 'package:flutter/material.dart';
 
-import 'enumerations.dart';
+import '../enumerations.dart';
+import 'weekday_sequence.dart';
 
 extension DateTimeExtensions on DateTime {
   /// Compares only [day], [month] and [year] of [DateTime].
@@ -45,20 +46,23 @@ extension DateTimeExtensions on DateTime {
   /// will return dates
   /// [6,7,8,9,10,11,12]
   /// Where on 6th there will be monday and on 12th there will be Sunday
-  List<DateTime> datesOfWeek({WeekDays startDay = WeekDays.monday}) {
-    final day = weekday;
-    final start = subtract(Duration(days: day - startDay.index));
+  List<DateTime> dateSequence({
+    required WeekdaySequence sequence,
+  }) {
+    final days = <DateTime>[];
 
-    return [
-      start,
-      start.add(Duration(days: 1)),
-      start.add(Duration(days: 2)),
-      start.add(Duration(days: 3)),
-      start.add(Duration(days: 4)),
-      start.add(Duration(days: 5)),
-      start.add(Duration(days: 6)),
-    ];
+    var date = this;
+
+    for (final weekDays in sequence.sequence) {
+      while (date.weekDays != weekDays) date = date.add(Duration(days: 1));
+
+      days.add(date);
+    }
+
+    return days;
   }
+
+  WeekDays get weekDays => WeekDays.values[weekday % 7];
 
   /// Returns list of all dates of [month].
   /// All the dates are week based that means it will return array of size 42
@@ -67,7 +71,8 @@ extension DateTimeExtensions on DateTime {
   List<DateTime> get datesOfMonths {
     final monthDays = <DateTime>[];
     for (var i = 1, start = 1; i < 7; i++, start += 7) {
-      monthDays.addAll(DateTime(year, month, start).datesOfWeek());
+      monthDays.addAll(DateTime(year, month, start)
+          .dateSequence(sequence: WeekdaySequence()));
     }
     return monthDays;
   }
