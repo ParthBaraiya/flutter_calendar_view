@@ -44,7 +44,9 @@ class EventController<T> extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Adds a single event in [_events]
+  /// Adds a single event in list of events.
+  /// Does nothing if event is already in list.
+  ///
   void add(CalendarEventData<T> event) {
     _addEvent(event);
 
